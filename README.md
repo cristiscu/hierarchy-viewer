@@ -50,4 +50,6 @@ Here is a partial view of the generated graph:
 
 ![show-details](images/show-details.png)
 
-*Note*: **employees.csv** test file has been adapter [from here](https://gist.github.com/kevin336/acbb2271e66c10a5b73aacf82ca82784).
+The **employees.csv** test file has been adapter [from here](https://gist.github.com/kevin336/acbb2271e66c10a5b73aacf82ca82784):
+
+![employees-data](images/employees-data.png)
