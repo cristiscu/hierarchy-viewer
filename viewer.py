@@ -71,9 +71,8 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, valueCol, rev, all
         # resize bubble based on value
         v = ''
         if valueCol is not None:
-            val = float(row[valueCol])
-            valN = (ma - mi) * (val - min) / (max - min) + 1 
-            v = f' width={valN:0.2f} tooltip="{val}"'
+            valN = (ma - mi) * (float(row[valueCol]) - min) / (max - min) + 1 
+            v = f' width={valN:0.2f} tooltip="{row[valueCol]}"'
 
         # add node (with label and eventual value)
         label = str(row[fromCol]) if displayCol is None else str(row[displayCol])
@@ -125,7 +124,7 @@ def makeTree(df, fromCol, toCol, displayCol, valueCol, filename):
         name = nFrom if displayCol is None else str(row[displayCol])
         node = { "name": name }
         nodes[nFrom] = node
-        if valueCol is not None: node["value"] = float(row[valueCol])
+        if valueCol is not None: node["value"] = row[valueCol]
         if pd.isna(row[toCol]): head = node
 
     # add children to nodes

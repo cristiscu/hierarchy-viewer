@@ -1,34 +1,34 @@
 {
     "name": "Steven King",
-    "value": 24000.0,
+    "value": 24000,
     "children": [
         {
             "name": "Neena Kochhar",
-            "value": 17000.0,
+            "value": 17000,
             "children": [
                 {
                     "name": "Hermann Baer",
-                    "value": 10000.0
+                    "value": 10000
                 },
                 {
                     "name": "Shelley Higgins",
-                    "value": 12008.0
+                    "value": 12008
                 },
                 {
                     "name": "Nancy Greenberg",
-                    "value": 12008.0,
+                    "value": 12008,
                     "children": [
                         {
                             "name": "Ismael Sciarra",
-                            "value": 7700.0
+                            "value": 7700
                         },
                         {
                             "name": "Jose Manuel Urman",
-                            "value": 7800.0
+                            "value": 7800
                         },
                         {
                             "name": "Luis Popp",
-                            "value": 6900.0
+                            "value": 6900
                         }
                     ]
                 }
@@ -36,19 +36,19 @@
         },
         {
             "name": "Lex De Haan",
-            "value": 17000.0,
+            "value": 17000,
             "children": [
                 {
                     "name": "Alexander Hunold",
-                    "value": 9000.0,
+                    "value": 9000,
                     "children": [
                         {
                             "name": "Bruce Ernst",
-                            "value": 6000.0
+                            "value": 6000
                         },
                         {
                             "name": "Valli Pataballa",
-                            "value": 4800.0
+                            "value": 4800
                         }
                     ]
                 }
@@ -56,25 +56,25 @@
         },
         {
             "name": "Den Raphaely",
-            "value": 11000.0,
+            "value": 11000,
             "children": [
                 {
                     "name": "Alexander Khoo",
-                    "value": 3100.0
+                    "value": 3100
                 },
                 {
                     "name": "Shelli Baida",
-                    "value": 2900.0
+                    "value": 2900
                 }
             ]
         },
         {
             "name": "Adam Fripp",
-            "value": 8200.0,
+            "value": 8200,
             "children": [
                 {
                     "name": "Laura Bissot",
-                    "value": 3300.0
+                    "value": 3300
                 }
             ]
         }
