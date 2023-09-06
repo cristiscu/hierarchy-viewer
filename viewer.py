@@ -16,6 +16,7 @@ def showUsage(msg=''):
         "--rev               - [optional] when true, the arrow will be directed from parent to child\n"
         "--d column-name     - [optional] name of a display column (or the 'from' column name will be used by default)\n"
         "--g column-name     - [optional] name of a column to group objects by\n"
+        "--v column-name     - [optional] name of a column to use for a TreeMap\n"
         "--all               - [optional] expand all objects and show all related properties from the CSV file\n")
     sys.exit(2)
 
@@ -27,6 +28,7 @@ def processArgs():
     parser.add_argument('--rev', dest='rev', action=argparse.BooleanOptionalAction)
     parser.add_argument('--d', dest='displayCol')
     parser.add_argument('--g', dest='groupCol')
+    parser.add_argument('--v', dest='valueCol')
     parser.add_argument('--all', dest='all', action=argparse.BooleanOptionalAction)
     args = parser.parse_args()
 
@@ -37,8 +39,16 @@ def processArgs():
 
     return args
 
-def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all, filename):
+def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, valueCol, rev, all, filename):
     s = ""; t = ""
+
+    # calculate in, max, to scale values between 1..3 inches
+    mi, ma = 1, 3; min, max = 0.0, 0.0
+    if valueCol is not None:
+        for _, row in df.iterrows():
+            val = float(row[valueCol])
+            if val < min: min = val
+            if val > max: max = val
 
     # add groups (as subgraph clusters)
     if groupCol is not None:
@@ -58,9 +68,16 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all, filename
                     + f'\t\tlabel="{grp}"')
                 gps += 1; g = grp
 
-        # add node (with label)
+        # resize bubble based on value
+        v = ''
+        if valueCol is not None:
+            val = float(row[valueCol])
+            valN = (ma - mi) * (val - min) / (max - min) + 1 
+            v = f' width={valN:0.2f} tooltip="{val}"'
+
+        # add node (with label and eventual value)
         label = str(row[fromCol]) if displayCol is None else str(row[displayCol])
-        display = f' [label="{label}"]'
+        display = f' [label="{label}"{v}]'
         if all:
             # get and show all row properties in the "exploded" node
             vals = ''
@@ -83,12 +100,15 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all, filename
             else: s += f'\n\tn{str(row[fromCol])} -> n{str(row[toCol])};'
 
     # add digraph around
+    shape = 'Mrecord' if valueCol is None else 'circle'
     s = (f'digraph d {{\n'
         + f'\tgraph [rankdir="LR"; compound="True" color="Gray"];\n'
-        + f'\tnode [shape="Mrecord" style="filled" color="SkyBlue"]'
+        + f'\tnode [shape="{shape}" style="filled" color="SkyBlue"]'
         + f'{s}\n}}')
+
     with open(f"{filename}.dot", "w") as file:
         file.write(s)
+    print(f'Generated "{filename}.dot"')
 
     # url-encode as query string for remote Graphviz Visual Editor
     s = urllib.parse.quote(s)
@@ -96,15 +116,17 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all, filename
     webbrowser.open(s)
 
 # inspired by https://codepen.io/brendandougan/pen/PpEzRp
-def makeTree(df, fromCol, toCol, displayCol, filename):
+def makeTree(df, fromCol, toCol, displayCol, valueCol, filename):
     nodes = {}; head = None;
 
     # add nodes (to a local map)
     for _, row in df.iterrows():
         nFrom = str(row[fromCol])
         name = nFrom if displayCol is None else str(row[displayCol])
-        nodes[nFrom] = { "name": name }
-        if pd.isna(row[toCol]): head = nodes[nFrom]
+        node = { "name": name }
+        nodes[nFrom] = node
+        if valueCol is not None: node["value"] = float(row[valueCol])
+        if pd.isna(row[toCol]): head = node
 
     # add children to nodes
     for _, row in df.iterrows():
@@ -114,14 +136,21 @@ def makeTree(df, fromCol, toCol, displayCol, filename):
             if "children" not in nTo: nTo["children"] = []
             nTo["children"].append(nFrom)
 
+    # create JSON file
+    j = json.dumps(head, indent=4)
+    with open(f"{filename}.json", "w") as file:
+        file.write(j)
+    print(f'Generated "{filename}.json"')
+
     # create HTML file from template customized with our JSON dump
     with open(f"data/template.html", "r") as file:
         s = file.read()
 
-    s = s.replace('"{{data}}"', json.dumps(head, indent=4))
+    s = s.replace('"{{data}}"', j)
     with open(f"{filename}.html", "w") as file:
         file.write(s)
-    webbrowser.open(s)
+    print(f'Generated "{filename}.html"')
+    #webbrowser.open(s)
    
 def main():
     args = processArgs()
@@ -147,9 +176,14 @@ def main():
         groupCol = args.groupCol.upper()
         if groupCol not in cols: showUsage("'group' column not found!")
 
+    valueCol = None
+    if args.valueCol is not None:
+        valueCol = args.valueCol.upper()
+        if valueCol not in cols: showUsage("'value' column not found!")
+
     # generates and open GraphViz DOT graph, and D3 collapsible tree
-    makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, args.rev, args.all, args.filename)
-    makeTree(df, fromCol, toCol, displayCol, args.filename)
+    makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, valueCol, args.rev, args.all, args.filename)
+    makeTree(df, fromCol, toCol, displayCol, valueCol, args.filename)
 
 if __name__ == '__main__':
   main()

@@ -1,0 +1,82 @@
+{
+    "name": "Steven King",
+    "value": 24000.0,
+    "children": [
+        {
+            "name": "Neena Kochhar",
+            "value": 17000.0,
+            "children": [
+                {
+                    "name": "Hermann Baer",
+                    "value": 10000.0
+                },
+                {
+                    "name": "Shelley Higgins",
+                    "value": 12008.0
+                },
+                {
+                    "name": "Nancy Greenberg",
+                    "value": 12008.0,
+                    "children": [
+                        {
+                            "name": "Ismael Sciarra",
+                            "value": 7700.0
+                        },
+                        {
+                            "name": "Jose Manuel Urman",
+                            "value": 7800.0
+                        },
+                        {
+                            "name": "Luis Popp",
+                            "value": 6900.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Lex De Haan",
+            "value": 17000.0,
+            "children": [
+                {
+                    "name": "Alexander Hunold",
+                    "value": 9000.0,
+                    "children": [
+                        {
+                            "name": "Bruce Ernst",
+                            "value": 6000.0
+                        },
+                        {
+                            "name": "Valli Pataballa",
+                            "value": 4800.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Den Raphaely",
+            "value": 11000.0,
+            "children": [
+                {
+                    "name": "Alexander Khoo",
+                    "value": 3100.0
+                },
+                {
+                    "name": "Shelli Baida",
+                    "value": 2900.0
+                }
+            ]
+        },
+        {
+            "name": "Adam Fripp",
+            "value": 8200.0,
+            "children": [
+                {
+                    "name": "Laura Bissot",
+                    "value": 3300.0
+                }
+            ]
+        }
+    ]
+}

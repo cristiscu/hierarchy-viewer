@@ -43,7 +43,16 @@ In a similar manner we may group employees by job title:
 
 ![group-by-job-title](images/group-by-job-title.png)
 
-(3) Detailed Graphs
+(3) Bubble Charts
+=================
+
+Instead of grouping, we may also pass a "value" column, like SALARY, in which case each shape becomes a "bubble" resized based on these values, with the actual value as tooltip:
+
+**<code>python viewer.py --f data/employees --from employee_id --to manager_id --d employee_name --v salary</code>**
+
+![bubble-chart](images/bubble-chart.png)
+
+(4) Detailed Graphs
 ===================
 
 The **--all** flag will "expand" all other properties (except the display name) from the CSV file for each object. If you get an error that the URL is too long for the browser, copy and paste the generated DOT file content into the online GraphViz editor (but be aware that this may generate indeed a lot of data!).
