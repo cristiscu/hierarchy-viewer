@@ -4,13 +4,13 @@ Creation Date: Aug 2023
 Company:       XtractPro Software
 """
 
-import sys, argparse, webbrowser, urllib.parse
+import sys, json, argparse, webbrowser, urllib.parse
 import pandas as pd
 
 def showUsage(msg=''):
     if len(msg) > 0: print(msg)
     print("Usage: python viewer.py options\n"
-        "--f filename        - [required] CSV file name\n"
+        "--f filename        - [required] CSV file name (with no file extension)\n"
         "--from column-name  - [required] name of the source child relationship column (used as identifier)\n"
         "--to column-name    - [required] name of the target parent relationship column (used as foreign key)\n"
         "--rev               - [optional] when true, the arrow will be directed from parent to child\n"
@@ -37,7 +37,7 @@ def processArgs():
 
     return args
 
-def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all):
+def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all, filename):
     s = ""; t = ""
 
     # add groups (as subgraph clusters)
@@ -47,7 +47,7 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all):
 
     # add nodes
     g = None; gps = 1;
-    for i, row in df.iterrows():
+    for _, row in df.iterrows():
         # read group and create subgroup cluster for next nodes
         # see https://stackoverflow.com/questions/2012036/graphviz-how-to-connect-subgraphs
         if groupCol is not None:
@@ -87,13 +87,45 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all):
         + f'\tgraph [rankdir="LR"; compound="True" color="Gray"];\n'
         + f'\tnode [shape="Mrecord" style="filled" color="SkyBlue"]'
         + f'{s}\n}}')
-    #print(s)
-    return s
+    with open(f"{filename}.dot", "w") as file:
+        file.write(s)
+
+    # url-encode as query string for remote Graphviz Visual Editor
+    s = urllib.parse.quote(s)
+    s = f'http://magjac.com/graphviz-visual-editor/?dot={s}'
+    webbrowser.open(s)
+
+def makeTree(df, fromCol, toCol, displayCol, filename):
+    nodes = {}; head = None;
+
+    # add nodes (to a local map)
+    for _, row in df.iterrows():
+        nFrom = str(row[fromCol])
+        name = nFrom if displayCol is None else str(row[displayCol])
+        nodes[nFrom] = { "name": name }
+        if pd.isna(row[toCol]): head = nodes[nFrom]
+
+    # add children to nodes
+    for _, row in df.iterrows():
+        nFrom = nodes[str(row[fromCol])]
+        if not pd.isna(row[toCol]):
+            nTo = nodes[str(row[toCol])]
+            if "children" not in nTo: nTo["children"] = []
+            nTo["children"].append(nFrom)
+
+    # create HTML file from template customized with our JSON dump
+    with open(f"data/template.html", "r") as file:
+        s = file.read()
+
+    s = s.replace('"{{data}}"', json.dumps(head, indent=4))
+    with open(f"{filename}.html", "w") as file:
+        file.write(s)
+    webbrowser.open(s)
    
 def main():
     args = processArgs()
 
-    df = pd.read_csv(args.filename).convert_dtypes()
+    df = pd.read_csv(f"{args.filename}.csv").convert_dtypes()
     cols = list(map(str.upper, df.columns.values.tolist()))
     df = df.reset_index()  # make sure indexes pair with number of rows
 
@@ -114,16 +146,9 @@ def main():
         groupCol = args.groupCol.upper()
         if groupCol not in cols: showUsage("'group' column not found!")
 
-    # make graph
-    s = makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, args.rev, args.all)
-    with open(f"{args.filename}.dot", "w") as file:
-        file.write(s)
-
-    # url-encode as query string for remote Graphviz Visual Editor
-    s = urllib.parse.quote(s)
-    s = f'http://magjac.com/graphviz-visual-editor/?dot={s}'
-    # print(s)
-    webbrowser.open(s)
+    # generates and open GraphViz DOT graph, and D3 collapsible tree
+    makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, args.rev, args.all, args.filename)
+    makeTree(df, fromCol, toCol, displayCol, args.filename)
 
 if __name__ == '__main__':
   main()
