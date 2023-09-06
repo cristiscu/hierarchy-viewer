@@ -95,6 +95,7 @@ def makeGraph(df, cols, fromCol, toCol, displayCol, groupCol, rev, all, filename
     s = f'http://magjac.com/graphviz-visual-editor/?dot={s}'
     webbrowser.open(s)
 
+# inspired by https://codepen.io/brendandougan/pen/PpEzRp
 def makeTree(df, fromCol, toCol, displayCol, filename):
     nodes = {}; head = None;
 
